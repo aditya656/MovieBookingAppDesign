@@ -9,6 +9,8 @@ import SwiftUI
 struct DashboardView: View {
     @Namespace private var profileAnimation
     @State var posterExpanded = false
+    @State var selectedDate: Int = -1
+    @State var selectedTime: Int = -1
     
     var photoHeight: CGFloat {
         posterExpanded ? 130 : UIScreen.main.bounds.width * (1585 / 1295)
@@ -20,36 +22,71 @@ struct DashboardView: View {
     var body: some View {
         VStack {
             if posterExpanded {
-                closeHeaderView
+                closeButtonHeaderView
             } else {
                 headerView
             }
             HStack {
-                Image("bad_guys_poster")
-                    .resizable()
-                    .scaledToFit()
-                    .scaleEffect(posterExpanded ? CGSize(width: 1.8, height: 1.8) : CGSize(width: 1, height: 1),
-                                 anchor: posterExpanded ? UnitPoint(x: 0.5, y: 0) : .center)
-                    .frame(width: photoWidth, height: photoHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                posterView
                 if posterExpanded {
                     collapsedBodyView
                 }
             }
             
-            if !posterExpanded {
+            if posterExpanded {
+                separatorView
+                DateTimeSelectionView(selectedDate: $selectedDate, selectedTime: $selectedTime)
+                Spacer()
+                Button(action: {
+                    
+                }) {
+                    Text("Continue")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.yellow)
+                        .clipShape(Capsule())
+                }
+                .padding(.top, 24)
+                .padding(.horizontal, 24)
+                .opacity(selectedTime != -1 ? 1 : 0)
+                .animation(.easeIn, value: selectedTime)
+            } else {
                 expandedBodyView
+                    .offset(y: -100)
             }
-            Spacer()
         }
+        .padding(.top, 50)
+        .padding(.bottom, 20)
+        .ignoresSafeArea()
     }
     
-    var closeHeaderView: some View {
+    var posterView: some View {
+        Image("bad_guys_poster")
+            .resizable()
+            .scaledToFit()
+            .scaleEffect(posterExpanded ? CGSize(width: 1.8, height: 1.8) : CGSize(width: 1, height: 1),
+                         anchor: posterExpanded ? UnitPoint(x: 0.5, y: 0) : .center)
+            .frame(width: photoWidth, height: photoHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .padding(.leading, posterExpanded ? 24 : 0)
+    }
+    
+    var separatorView: some View {
+        Rectangle()
+            .foregroundStyle(Color.gray.opacity(0.4))
+            .frame(width: UIScreen.main.bounds.width - 48, height: 2)
+            .padding(.top, 24)
+    }
+    
+    var closeButtonHeaderView: some View {
         HStack {
             Button(action: {
-                print("Buy Tickets tapped")
                 withAnimation() {
                     posterExpanded = false
+                    selectedDate = -1
+                    selectedTime = -1
                 }
             }) {
                 Image(systemName: "xmark")
@@ -85,7 +122,7 @@ struct DashboardView: View {
                     .resizable()
                     .scaledToFit()
                     .matchedGeometryEffect(id: "TitleLogo", in: profileAnimation)
-                    .frame(width: 150)
+                    .frame(height: 100)
                 Text("2025 • Animation • 96 min")
                     .font(.subheadline)
                     .matchedGeometryEffect(id: "SubTitleText", in: profileAnimation)
@@ -103,7 +140,6 @@ struct DashboardView: View {
             }
             HStack {
                 Button(action: {
-                    print("Buy Tickets tapped")
                     withAnimation() {
                         posterExpanded = true
                     }
@@ -124,7 +160,7 @@ struct DashboardView: View {
                         .font(.system(size: 20))
                         .foregroundColor(.white)
                         .padding(18)
-                        .background(Color.gray)
+                        .background(Color.gray.opacity(0.4))
                         .clipShape(Circle())
                 }
                 .padding(.top, 24)
