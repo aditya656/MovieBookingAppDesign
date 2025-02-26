@@ -10,25 +10,36 @@ struct DashboardView: View {
     @Namespace private var profileAnimation
     @State var posterExpanded = false
     
+    var photoHeight: CGFloat {
+        posterExpanded ? 130 : UIScreen.main.bounds.width * (1585 / 1295)
+    }
+    var photoWidth: CGFloat {
+        posterExpanded ? 180 : UIScreen.main.bounds.width
+    }
+    
     var body: some View {
         VStack {
             if posterExpanded {
                 closeHeaderView
-                collapsedBodyView
-//                .zIndex(5)
             } else {
                 headerView
+            }
+            HStack {
+                Image("bad_guys_poster")
+                    .resizable()
+                    .scaledToFit()
+                    .scaleEffect(posterExpanded ? CGSize(width: 1.8, height: 1.8) : CGSize(width: 1, height: 1),
+                                 anchor: posterExpanded ? UnitPoint(x: 0.5, y: 0) : .center)
+                    .frame(width: photoWidth, height: photoHeight)
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                if posterExpanded {
+                    collapsedBodyView
+                }
+            }
+            
+            if !posterExpanded {
                 expandedBodyView
             }
-//            ZStack {
-//                expandedBodyView
-//                    .opacity(posterExpanded ? 0 : 1)
-//                    .zIndex(posterExpanded ? 0 : 100)
-//                collapsedBodyView
-//                    .opacity(posterExpanded ? 1 : 0)
-//                    .zIndex(posterExpanded ? 100 : 0)
-//            }
-//            .background(Color.green)
             Spacer()
         }
     }
@@ -50,7 +61,7 @@ struct DashboardView: View {
             .padding(.top, 8)
             Spacer()
         }
-        .padding(.bottom, 24)
+        .padding(.bottom, 28)
     }
     
     var headerView: some View {
@@ -68,87 +79,70 @@ struct DashboardView: View {
     }
     
     var expandedBodyView: some View {
-        ZStack {
-            Image("bad_guys_poster")
-                .resizable()
-                .matchedGeometryEffect(id: "PosterAnimation", in: profileAnimation)
-                .transition(.offset(y: 1))
-                .scaledToFit()
-//                .frame(width: 100)
-                .clipShape(RoundedCorners(radius: 48, corners: [.topLeft, .topRight]))
-                
-                
-                
+        VStack {
             VStack {
-                VStack {
-                    Image("bad_guys_logo")
+                Image("bad_guys_logo")
+                    .resizable()
+                    .scaledToFit()
+                    .matchedGeometryEffect(id: "TitleLogo", in: profileAnimation)
+                    .frame(width: 150)
+                Text("2025 • Animation • 96 min")
+                    .font(.subheadline)
+                    .matchedGeometryEffect(id: "SubTitleText", in: profileAnimation)
+                    .padding(.top, 12)
+                HStack {
+                    Image("ic_imdb")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 150)
-                    Text("2025 • Animation • 96 min")
+                        .frame(height: 20)
+                    Text("7.7")
                         .font(.subheadline)
-                        .padding(.top, 12)
-                    HStack {
-                        Image("ic_imdb")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 20)
-                        Text("7.7")
-                            .font(.subheadline)
-                    }
-                    .padding(.top, 6)
                 }
-                HStack {
-                    Button(action: {
-                        print("Buy Tickets tapped")
-                        withAnimation() {
-                            posterExpanded = true
-                        }
-                    }) {
-                        Text("Buy Tickets")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 16)
-                            .background(Color.yellow)
-                            .clipShape(Capsule()) // Rounded button
-                    }
-                    .padding(.top, 24)
-                    Button(action: {
-                        print("Play tapped")
-                    }) {
-                        Image(systemName: "play.fill") // Play icon
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .padding(18)
-                            .background(Color.gray) //.opacity(0.8))
-                            .clipShape(Circle()) // Circular button
-                    }
-                    .padding(.top, 24)
-                }
+                .matchedGeometryEffect(id: "IMDBRating", in: profileAnimation)
+                .padding(.top, 6)
             }
-            .offset(y: 200)
-            
+            HStack {
+                Button(action: {
+                    print("Buy Tickets tapped")
+                    withAnimation() {
+                        posterExpanded = true
+                    }
+                }) {
+                    Text("Buy Tickets")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 16)
+                        .background(Color.yellow)
+                        .clipShape(Capsule())
+                }
+                .padding(.top, 24)
+                Button(action: {
+                    print("Play tapped")
+                }) {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                        .padding(18)
+                        .background(Color.gray)
+                        .clipShape(Circle())
+                }
+                .padding(.top, 24)
+            }
         }
     }
     
     var collapsedBodyView: some View {
         HStack(spacing: 16) {
-            Image("bad_guys_poster")
-                .resizable()
-                .matchedGeometryEffect(id: "PosterAnimation", in: profileAnimation)
-                .scaledToFit()
-                .frame(width: 180, height: 130)
-                .scaleEffect(CGSize(width: 1.4, height: 1.4), anchor: UnitPoint(x: 0.5, y: -1))
-                .clipShape(RoundedRectangle(cornerRadius: 24))
-            
             VStack(alignment: .leading) {
                 Image("bad_guys_logo")
                     .resizable()
                     .scaledToFit()
+                    .matchedGeometryEffect(id: "TitleLogo", in: profileAnimation)
                     .frame(width: 70)
                 Text("2025 • Animation • 96 min")
                     .font(.caption)
+                    .matchedGeometryEffect(id: "SubTitleText", in: profileAnimation)
                     .padding(.top, 6)
                 HStack {
                     Image("ic_imdb")
@@ -158,25 +152,12 @@ struct DashboardView: View {
                     Text("7.7")
                         .font(.subheadline)
                 }
+                .matchedGeometryEffect(id: "IMDBRating", in: profileAnimation)
                 .padding(.top, 6)
             }
             Spacer()
         }
         .padding(.leading, 12)
-    }
-}
-
-struct RoundedCorners: Shape {
-    var radius: CGFloat = 10
-    var corners: UIRectCorner = .allCorners
-    
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        return Path(path.cgPath)
     }
 }
 
